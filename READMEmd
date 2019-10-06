@@ -1,0 +1,9 @@
+# habitat-compase
+
+## Debugging
+
+```bash
+build habitat-compose; HAB_ORIGIN=v2prop build v2-core-refresh/habitat-compose; hab svc load --force v2prop/core
+
+hab pkg exec core/node node --inspect-brk=0.0.0.0 habitat-compose/habitat-compose.js /hab/svc/core/config
+```

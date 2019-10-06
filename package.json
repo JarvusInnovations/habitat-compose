@@ -1,0 +1,8 @@
+{
+  "name": "habitat-compose",
+  "version": "0.1.0",
+  "main": "habitat-compose.js",
+  "dependencies": {
+    "hab-client": "^1.0.3"
+  }
+}
