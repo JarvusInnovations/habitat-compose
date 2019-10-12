@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "main": "habitat-compose.js",
   "dependencies": {
-    "hab-client": "^1.0.3"
+    "@iarna/toml": "^2.2.3",
+    "hab-client": "^1.0.3",
+    "toposort": "^2.0.2"
   }
 }
