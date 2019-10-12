@@ -7,6 +7,7 @@ pkg_license=("Apache-2.0")
 pkg_deps=(core/node)
 pkg_bin_dirs=(bin)
 pkg_svc_user="root"
+pkg_svc_run="habitat-compose ${pkg_svc_config_path}/services.json"
 
 
 do_build() {
@@ -29,9 +30,4 @@ do_install() {
   } > "${pkg_prefix}/bin/habitat-compose"
   chmod +x "${pkg_prefix}/bin/habitat-compose"
   popd > /dev/null
-}
-
-do_build_service() {
-  pkg_svc_run="habitat-compose ${pkg_svc_config_path}/services.json"
-  do_default_build_service
 }
