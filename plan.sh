@@ -7,6 +7,7 @@ pkg_license=("Apache-2.0")
 pkg_deps=(core/node)
 pkg_bin_dirs=(bin)
 pkg_svc_user="root"
+pkg_svc_group="root"
 pkg_svc_run="habitat-compose ${pkg_svc_config_path}/services.json"
 
 
