@@ -75,3 +75,13 @@ do_strip() {
   [services.nginx.binds]
     runtime = "myapp"
 ```
+
+### Building packages and composite docker container
+
+```bash
+export HAB_ORIGIN="myorigin"
+
+hab pkg build ./myapp
+hab pkg build --reuse ./myapp/habitat/composite
+env $(cat results/last_build.env | xargs) bash -c 'hab pkg export docker results/${pkg_artifact}'
+```
