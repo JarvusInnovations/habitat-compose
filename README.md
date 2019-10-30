@@ -3,7 +3,9 @@ A plan and pattern for deploying groups of Habitat services
 
 ## Example Usage
 
-### `habitat/composite/plan.sh`
+### Initialize `habitat/composite/plan.sh`
+
+Just change `myapp` and `myorigin` to create this thin wrapper service around your `myapp` service:
 
 ```bash
 composite_base_pkg_name=myapp
@@ -58,7 +60,9 @@ do_strip() {
 }
 ```
 
-### `habitat/composite/default.toml`
+### Initialize `habitat/composite/default.toml`
+
+Map out the services you want and their binds:
 
 ```toml
 [services.postgresql]
@@ -77,6 +81,8 @@ do_strip() {
 ```
 
 ### Building packages and composite docker container
+
+Use a reused studio to build a composite Habitat service you can export to a Docker contaire with Habitat:
 
 ```bash
 export HAB_ORIGIN="myorigin"
