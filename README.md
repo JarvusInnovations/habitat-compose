@@ -93,3 +93,60 @@ hab pkg build ./myapp
 hab pkg build --reuse ./myapp/habitat/composite
 env $(cat results/last_build.env | xargs) bash -c 'hab pkg export docker results/${pkg_artifact}'
 ```
+
+Or, bundle the whole build process up in one Dockerfile with optimized layering:
+
+```Dockerfile
+FROM jarvus/habitat-compose:latest as habitat
+ARG HAB_LICENSE=no-accept
+ENV HAB_LICENSE=$HAB_LICENSE
+ENV STUDIO_TYPE=Dockerfile
+ENV HAB_ORIGIN=myorigin
+RUN hab origin key generate
+# pre-layer all external runtime plan deps
+COPY habitat/plan.sh /habitat/plan.sh
+RUN hab pkg install \
+    $({ cat '/habitat/plan.sh' && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+# pre-layer all external runtime composite deps
+COPY habitat/composite/plan.sh /habitat/composite/plan.sh
+RUN hab pkg install \
+    $({ cat '/habitat/composite/plan.sh' && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+
+
+FROM habitat as builder
+# pre-layer all build-time plan deps
+RUN hab pkg install \
+    core/hab-plan-build \
+    $({ cat '/habitat/plan.sh' && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+# pre-layer all build-time composite deps
+RUN hab pkg install \
+    $({ cat '/habitat/composite/plan.sh' && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+# build application
+COPY . /src
+RUN hab pkg exec core/hab-plan-build hab-plan-build /src
+RUN hab pkg exec core/hab-plan-build hab-plan-build /src/habitat/composite
+
+
+FROM habitat as runtime
+# install .hart artifact from builder stage
+COPY --from=builder /hab/cache/artifacts/$HAB_ORIGIN-* /hab/cache/artifacts/
+RUN hab pkg install /hab/cache/artifacts/$HAB_ORIGIN-* \
+    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+
+
+# configure persistent volumes
+RUN hab pkg exec core/coreutils mkdir -p '/hab/svc/mysql/data' '/hab/svc/myapp/data' \
+    && hab pkg exec core/coreutils chown hab:hab -R '/hab/svc/mysql/data' '/hab/svc/myapp/data'
+
+VOLUME ["/hab/svc/mysql/data", "/hab/svc/myapp/data"]
+
+
+# configure entrypoint
+ENTRYPOINT ["hab", "sup", "run"]
+CMD ["myorigin/myapp-composite"]
+
+```
