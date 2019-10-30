@@ -16,8 +16,10 @@ pkg_build_deps=(
   jarvus/toml-merge
 )
 pkg_deps=(
-  "${pkg_origin}/${composite_base_pkg_name}"
   jarvus/habitat-compose
+
+  # any services you want to bundle
+  "${pkg_origin}/${composite_base_pkg_name}"
   core/postgresql11
   emergence/nginx/1.15.6/20191009041933
 )
