@@ -50,6 +50,10 @@ async function run() {
             [,service.pkg_name] = service.pkg_ident.split(/\//);
         }
 
+        if (!service.update_strategy) {
+            service.update_strategy = 'none';
+        }
+
         // determine binds
         for (const bindName in service.binds) {
             const bindServiceId = service.binds[bindName];
@@ -89,7 +93,7 @@ async function run() {
     // load services via supervisor
     const time = Date.now();
 
-    for (const { pkg_name, pkg_ident, binds, config } of sortedServices) {
+    for (const { pkg_name, pkg_ident, binds, update_strategy, config } of sortedServices) {
         console.error(`Loading service ${pkg_ident}`);
 
         const bindArgs = [];
@@ -103,7 +107,7 @@ async function run() {
             await hab.svc('load', pkg_ident, {
                 group: 'compose',
                 force: true,
-                strategy: 'at-once'
+                strategy: update_strategy
             }, ...bindArgs);
         } catch (err) {
             console.error(`Failed to load service: ${err.message}`);
