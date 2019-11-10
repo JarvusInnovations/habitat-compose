@@ -1,6 +1,6 @@
 pkg_name=habitat-compose
 pkg_origin=jarvus
-pkg_version="0.1.0"
+pkg_version="0.2.0"
 pkg_maintainer="Chris Alfano <chris@jarv.us>"
 pkg_upstream_url="https://github.com/JarvusInnovations/habitat-compose"
 pkg_license=("Apache-2.0")
