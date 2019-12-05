@@ -100,6 +100,8 @@ env $(cat results/last_build.env | xargs) bash -c 'hab pkg export docker results
 Or, bundle the whole build process up in one Dockerfile with optimized layering:
 
 ```Dockerfile
+# This Dockerfile is hyper-optimized to minimize layer changes
+
 FROM jarvus/habitat-compose:latest as habitat
 ARG HAB_LICENSE=no-accept
 ENV HAB_LICENSE=$HAB_LICENSE
@@ -109,12 +111,12 @@ RUN hab origin key generate
 # pre-layer all external runtime plan deps
 COPY habitat/plan.sh /habitat/plan.sh
 RUN hab pkg install \
-    $({ cat '/habitat/plan.sh' && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    $({ cat '/habitat/plan.sh' && echo && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
     && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
 # pre-layer all external runtime composite deps
 COPY habitat/composite/plan.sh /habitat/composite/plan.sh
 RUN hab pkg install \
-    $({ cat '/habitat/composite/plan.sh' && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    $({ cat '/habitat/composite/plan.sh' && echo && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
     && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
 
 
@@ -122,11 +124,11 @@ FROM habitat as builder
 # pre-layer all build-time plan deps
 RUN hab pkg install \
     core/hab-plan-build \
-    $({ cat '/habitat/plan.sh' && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    $({ cat '/habitat/plan.sh' && echo && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
     && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
 # pre-layer all build-time composite deps
 RUN hab pkg install \
-    $({ cat '/habitat/composite/plan.sh' && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
+    $({ cat '/habitat/composite/plan.sh' && echo && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
     && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
 # build application
 COPY . /src
@@ -151,5 +153,4 @@ VOLUME ["/hab/svc/mysql/data", "/hab/svc/myapp/data"]
 # configure entrypoint
 ENTRYPOINT ["hab", "sup", "run"]
 CMD ["myorigin/myapp-composite"]
-
 ```
