@@ -79,7 +79,10 @@ Map out the services you want and their binds:
 [services.nginx]
   pkg_ident = "emergence/nginx"
   [services.nginx.binds]
-    runtime = "myapp"
+    backend = "myapp"
+  [services.nginx.config]
+    ssl_certificate = "/hab/svc/nginx/files/ssl.crt"
+    ssl_certificate_key = "/hab/svc/nginx/files/ssl.key"
 ```
 
 ### Building packages and composite docker container
