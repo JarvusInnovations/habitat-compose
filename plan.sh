@@ -17,7 +17,7 @@ do_build() {
     "${PLAN_CONTEXT}/package.json" \
     "${PLAN_CONTEXT}/package-lock.json" \
     ./
-  npm install
+  npm ci
   popd > /dev/null
 }
 
