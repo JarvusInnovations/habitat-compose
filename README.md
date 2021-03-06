@@ -154,3 +154,11 @@ VOLUME ["/hab/svc/mysql/data", "/hab/svc/myapp/data"]
 ENTRYPOINT ["hab", "sup", "run"]
 CMD ["myorigin/myapp-composite"]
 ```
+
+## Development workflow
+
+```bash
+ HAB_DOCKER_OPTS="-p 9229:9229" hab studio enter -D
+
+hab pkg exec core/node node --inspect-brk=0.0.0.0 habitat-compose/habitat-compose.js /hab/svc/habitat-compose/config
+```
