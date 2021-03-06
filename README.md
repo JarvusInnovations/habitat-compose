@@ -1,4 +1,5 @@
 # habitat-compose
+
 A plan and pattern for deploying groups of Habitat services
 
 ## Example Usage
@@ -112,12 +113,12 @@ RUN hab origin key generate
 COPY habitat/plan.sh /habitat/plan.sh
 RUN hab pkg install \
     $({ cat '/habitat/plan.sh' && echo && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
-    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+    && hab pkg exec core/coreutils rm -rf /hab/cache/{artifacts,src}/
 # pre-layer all external runtime composite deps
 COPY habitat/composite/plan.sh /habitat/composite/plan.sh
 RUN hab pkg install \
     $({ cat '/habitat/composite/plan.sh' && echo && echo 'echo "${pkg_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
-    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+    && hab pkg exec core/coreutils rm -rf /hab/cache/{artifacts,src}/
 
 
 FROM habitat as builder
@@ -125,11 +126,11 @@ FROM habitat as builder
 RUN hab pkg install \
     core/hab-plan-build \
     $({ cat '/habitat/plan.sh' && echo && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
-    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+    && hab pkg exec core/coreutils rm -rf /hab/cache/{artifacts,src}/
 # pre-layer all build-time composite deps
 RUN hab pkg install \
     $({ cat '/habitat/composite/plan.sh' && echo && echo 'echo "${pkg_build_deps[@]/$pkg_origin\/*/}"'; } | hab pkg exec core/bash bash) \
-    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+    && hab pkg exec core/coreutils rm -rf /hab/cache/{artifacts,src}/
 # build application
 COPY . /src
 RUN hab pkg exec core/hab-plan-build hab-plan-build /src
@@ -140,7 +141,7 @@ FROM habitat as runtime
 # install .hart artifact from builder stage
 COPY --from=builder /hab/cache/artifacts/$HAB_ORIGIN-* /hab/cache/artifacts/
 RUN hab pkg install /hab/cache/artifacts/$HAB_ORIGIN-* \
-    && hab pkg exec core/coreutils rm -rf /hab/{artifacts,src}/
+    && hab pkg exec core/coreutils rm -rf /hab/cache/{artifacts,src}/
 
 
 # configure persistent volumes
