@@ -1,0 +1,20 @@
+name: 'Habitat: Publish and Promote Package'
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+env:
+  HAB_LICENSE: accept-no-persist
+
+jobs:
+  habitat-publish:
+
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: JarvusInnovations/infra-components/github-actions/habitat-publish@releases/github-actions/habitat-publish/r1
+      with:
+        hab-origin-key-secret: ${{ secrets.HAB_ORIGIN_KEY }}
+        hab-origin-key-public: ${{ secrets.HAB_ORIGIN_KEY_PUB }}
+        hab-auth-token: ${{ secrets.HAB_AUTH_TOKEN }}
