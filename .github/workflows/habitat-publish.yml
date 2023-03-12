@@ -18,7 +18,7 @@ jobs:
     - name: Setting package.json version
       run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF:11}"
 
-    - uses: JarvusInnovations/infra-components/github-actions/habitat-publish@releases/github-actions/habitat-publish/r1
+    - uses: JarvusInnovations/infra-components@channels/github-actions/habitat-publish/latest
       with:
         checkout: false
         hab-origin-key-secret: ${{ secrets.HAB_ORIGIN_KEY }}
