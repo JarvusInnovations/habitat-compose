@@ -33,7 +33,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Compute Docker container image path
-      id: compute
       run: |
         source results/last_build.env
 
