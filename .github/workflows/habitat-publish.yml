@@ -24,3 +24,41 @@ jobs:
         hab-origin-key-secret: ${{ secrets.HAB_ORIGIN_KEY }}
         hab-origin-key-public: ${{ secrets.HAB_ORIGIN_KEY_PUB }}
         hab-auth-token: ${{ secrets.HAB_AUTH_TOKEN }}
+
+    - name: Login to ghcr.io
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Compute Docker container image path
+      id: compute
+      run: |
+        source results/last_build.env
+
+        DOCKER_REPOSITORY="${GITHUB_REPOSITORY,,}"
+        DOCKER_IMAGE="ghcr.io/${DOCKER_REPOSITORY}"
+        echo "Using path: ${DOCKER_IMAGE}"
+
+        # set environment variables
+        echo "DOCKER_REPOSITORY=${DOCKER_REPOSITORY}" >> $GITHUB_ENV
+        echo "DOCKER_IMAGE=${DOCKER_IMAGE}" >> $GITHUB_ENV
+        echo "DOCKER_VERSION=${pkg_version}" >> $GITHUB_ENV
+
+    - name: Build Docker container image
+      run: |
+        source results/last_build.env
+        hab pkg export container "results/${pkg_artifact}"
+
+    - name: Tag Docker container image
+      run: |
+        docker tag "jarvus/habitat-compose:latest" "${DOCKER_IMAGE}:latest"
+        docker tag "jarvus/habitat-compose:latest" "${DOCKER_IMAGE}:${DOCKER_VERSION}"
+        docker tag "jarvus/habitat-compose:latest" "${DOCKER_IMAGE}:${DOCKER_VERSION%.*}"
+
+    - name: Push Docker container image tags
+      run: |
+        docker push "${DOCKER_IMAGE}:latest"
+        docker push "${DOCKER_IMAGE}:${DOCKER_VERSION}"
+        docker push "${DOCKER_IMAGE}:${DOCKER_VERSION%.*}"
