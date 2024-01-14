@@ -4,7 +4,7 @@ pkg_maintainer="Chris Alfano <chris@jarv.us>"
 pkg_upstream_url="https://github.com/JarvusInnovations/habitat-compose"
 pkg_license=("Apache-2.0")
 pkg_build_deps=(jarvus/underscore)
-pkg_deps=(core/node)
+pkg_deps=(core/node14)
 pkg_bin_dirs=(bin)
 pkg_svc_user="root"
 pkg_svc_group="root"
@@ -35,7 +35,7 @@ do_install() {
   pushd "${CACHE_PATH}" > /dev/null
   cp -r ./* "${pkg_prefix}/"
   {
-    echo "#!$(pkg_path_for core/node)/bin/node"
+    echo "#!$(pkg_path_for core/node14)/bin/node"
     echo
     cat "${PLAN_CONTEXT}/habitat-compose.js"
   } > "${pkg_prefix}/bin/habitat-compose"
